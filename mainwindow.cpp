@@ -70,7 +70,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 
     // Conectar las acciones a las funciones correspondientes
     connect(accion_abrir, &QAction::triggered, this, &MainWindow::cargar_datos); // Conectar la acción abrir al método cargar_datos
-    connect(accion_guardar_archivo, &QAction::triggered, this, &MainWindow::guardar_datos); // Conectar la acción guardar al método guardar_datos
+    connect(accion_guardar_archivo, &QAction::triggered, this, &MainWindow::guardar_datos_como); // Conectar la acción guardar al método guardar_datos_como
 
     // Agregar las acciones al menú "File"
     menu_archivo->addAction(accion_abrir); // Agregar la acción abrir al menú
@@ -233,12 +233,12 @@ void MainWindow::mostrar_menu_contextual(const QPoint &pos)
     if (item) // Verificar si hay un ítem válido
     {
         QMenu menu(this); // Crear un menú contextual
-        QAction *accion_rojo = menu.addAction("Red"); // Agregar opción "Red"
         QAction *accion_verde = menu.addAction("Green"); // Agregar opción "Green"
+        QAction *accion_rojo = menu.addAction("Red"); // Agregar opción "Red"
 
         // Conectar las acciones a las funciones correspondientes
-        connect(accion_rojo, &QAction::triggered, this, [this, item]() { cambiar_color_fila(item->row(), Qt::red); });
         connect(accion_verde, &QAction::triggered, this, [this, item]() { cambiar_color_fila(item->row(), Qt::green); });
+        connect(accion_rojo, &QAction::triggered, this, [this, item]() { cambiar_color_fila(item->row(), Qt::red); });
 
         menu.exec(tabla_pedidos->viewport()->mapToGlobal(pos)); // Mostrar el menú en la posición del clic
     }
@@ -354,16 +354,60 @@ void MainWindow::agregar_pedido()
 // Método para guardar datos en un archivo
 void MainWindow::guardar_datos()
 {
-    // Abrir un cuadro de diálogo para que el usuario elija la ubicación y el nombre del archivo
-    QString nombre_archivo = QFileDialog::getSaveFileName(this, "Save File", QCoreApplication::applicationDirPath(), "Text Files (*.txt)");
+    QString ruta_archivo = QCoreApplication::applicationDirPath() + "/Data.txt"; // Ruta del archivo Data.txt
+    QFile archivo(ruta_archivo); // Crear un objeto QFile con la ruta del archivo
 
-    // Verificar si el usuario seleccionó un archivo
-    if (!nombre_archivo.isEmpty())
+    // Abrir el archivo para escritura
+    if (archivo.open(QIODevice::WriteOnly | QIODevice::Text))
     {
-        QFile archivo(nombre_archivo); // Crear un objeto QFile con la ruta del archivo
+        QTextStream salida(&archivo); // Crear un flujo de texto para escribir en el archivo
 
-        // Abrir el archivo para escritura
-        if (archivo.open(QIODevice::WriteOnly | QIODevice::Text))
+        // Guardar la lista de clientes
+        salida << "Customers\n"; // Escribir el encabezado de clientes
+        for (int i = 0; i < tabla_clientes->rowCount(); ++i)
+        {
+            QString nombre = tabla_clientes->item(i, 0)->text();
+            QString direccion = tabla_clientes->item(i, 1)->text();
+            salida << nombre << " - " << direccion << "\n"; // Escribir cada cliente en el archivo
+        }
+
+        // Guardar la lista de productos
+        salida << "Products\n"; // Escribir el encabezado de productos
+        for (int i = 0; i < tabla_productos->rowCount(); ++i)
+        {
+            QString nombre = tabla_productos->item(i, 0)->text();
+            QString cantidad = tabla_productos->item(i, 1)->text();
+            salida << nombre << " - " << cantidad << "\n"; // Escribir cada producto en el archivo
+        }
+
+        // Guardar la lista de pedidos
+        salida << "Orders\n"; // Escribir el encabezado de pedidos
+        for (int i = 0; i < tabla_pedidos->rowCount(); ++i)
+        {
+            QString cliente = tabla_pedidos->item(i, 0)->text();
+            QString direccion = tabla_pedidos->item(i, 1)->text();
+            QString producto = tabla_pedidos->item(i, 2)->text();
+            salida << cliente << " - " << direccion << " - " << producto << "\n"; // Escribir cada pedido en el archivo
+        }
+
+        archivo.close(); // Cerrar el archivo después de escribir
+    }
+    else
+    {
+        QMessageBox::warning(this, "Error", "No se pudo abrir el archivo para escritura."); // Mostrar un mensaje de error si no se puede abrir el archivo
+    }
+}
+
+// Método para guardar datos en un archivo con un nombre y ubicación específicos
+void MainWindow::guardar_datos_como()
+{
+    QString nombre_archivo = QFileDialog::getSaveFileName(this, "Save File", QCoreApplication::applicationDirPath(), "Text Files (*.txt)"); // Abrir diálogo para guardar archivo
+
+    if (!nombre_archivo.isEmpty()) // Verificar que se haya elegido un nombre de archivo
+    {
+        QFile archivo(nombre_archivo); // Crear un objeto QFile con el nombre elegido
+
+        if (archivo.open(QIODevice::WriteOnly | QIODevice::Text)) // Abrir el archivo para escritura
         {
             QTextStream salida(&archivo); // Crear un flujo de texto para escribir en el archivo
 

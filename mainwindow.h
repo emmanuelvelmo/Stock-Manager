@@ -16,6 +16,7 @@ private slots:
     void cargar_datos_por_defecto(); // Cargar datos desde el archivo Data.txt
     void guardar_datos(); // Guardar datos en un archivo
     void cargar_datos(); // Cargar datos desde un archivo
+    void guardar_datos_como(); // Guardar datos en un archivo con un nombre y ubicación específicos
 
     // Métodos para agregar, eliminar y editar elementos
     void agregar_pedido(); // Agregar un nuevo pedido
