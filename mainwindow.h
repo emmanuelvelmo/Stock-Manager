@@ -35,10 +35,10 @@ private slots:
     void afectar_inventario(); // Restar 1 del inventario para órdenes verdes y eliminar todas las órdenes
 
     // Método para mostrar el menú contextual
-    void mostrarMenuContextual(const QPoint &pos); // Mostrar menú contextual al hacer clic derecho
+    void mostrar_menu_contextual(const QPoint &pos); // Mostrar menú contextual al hacer clic derecho
 
     // Método para cambiar el color de fondo de una fila
-    void cambiarColorFila(int fila, const QColor &color); // Cambiar el color de fondo de una fila
+    void cambiar_color_fila(int fila, const QColor &color); // Cambiar el color de fondo de una fila
 
 private:
     // Tablas para mostrar pedidos, clientes y productos
